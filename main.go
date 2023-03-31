@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	receive()
 	handleRequests()
 }
 
@@ -61,7 +62,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/get/{id}", returnTwoot)
 	myRouter.HandleFunc("/create", storeTwoot)
 
-	log.Fatal(http.ListenAndServe(":10000", myRouter))
+	log.Fatal(http.ListenAndServe(":9999", myRouter))
 }
 
 
