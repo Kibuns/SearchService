@@ -18,23 +18,52 @@ import (
 var client mongo.Client = NewClient()
 
 // ----Create----
-func InsertTwoot(twoot Models.Twoot, w http.ResponseWriter) {
-	twootCollection := client.Database("TwootDB").Collection("twoots")
+func InsertTwoot(twoot Models.Twoot) {
+	twootCollection := client.Database("HashtagTwootDB").Collection("twoots")
 	twoot.Created = time.Now()
 	_, err := twootCollection.InsertOne(context.TODO(), twoot)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// return the ID of the newly inserted script
-	fmt.Fprintf(w, "New twoot inserted for the user named: %s", twoot.UserName)
+	fmt.Println("New twoot inserted for the user named: " + twoot.UserName)
 }
 
 //----Read----
 
+func SearchTwootsByHashtag(hashtag string) ([]bson.M, error) {
+    twootCollection := client.Database("HashtagTwootDB").Collection("twoots")
+    
+    // construct the query to search for the hashtag in the twoot.Hashtags array
+    filter := bson.M{"hashtags": bson.M{"$in": []string{hashtag}}}
+    
+    // execute the query and retrieve the results
+    cursor, err := twootCollection.Find(context.TODO(), filter)
+    if err != nil {
+        return nil, err
+    }
+    defer cursor.Close(context.Background())
+    
+    // iterate through the cursor and decode the documents into a slice of bson.M
+    var results []bson.M
+    for cursor.Next(context.Background()) {
+        var doc bson.M
+        if err := cursor.Decode(&doc); err != nil {
+            return nil, err
+        }
+        results = append(results, doc)
+    }
+    if err := cursor.Err(); err != nil {
+        return nil, err
+    }
+    
+    return results, nil
+}
+
 func ReadAllTwoots() (values []primitive.M) {
-	twootCollection := client.Database("TwootDB").Collection("twoots")
+	twootCollection := client.Database("HashtagTwootDB").Collection("twoots")
 	// retrieve all the documents (empty filter)
 	cursor, err := twootCollection.Find(context.TODO(), bson.D{})
 	// check for errors in the finding
@@ -58,6 +87,8 @@ func ReadAllTwoots() (values []primitive.M) {
 	values = results
 	return
 }
+
+
 
 func ReadSingleTwoot(id string) (value primitive.M) {
 	twootCollection := client.Database("TwootDB").Collection("twoots")

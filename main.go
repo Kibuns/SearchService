@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/Kibuns/SearchService/DAL"
 	"github.com/Kibuns/SearchService/Models"
@@ -13,8 +16,18 @@ import (
 )
 
 func main() {
-	receive()
-	handleRequests()
+    // create a channel to receive signals to stop the application
+    stop := make(chan os.Signal, 1)
+    signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+    // start the goroutine to receive messages from the queue
+    go receive()
+
+    // start the goroutine to handle API requests
+    go handleRequests()
+
+    // wait for a signal to stop the application
+    <-stop
 }
 
 //controllers
@@ -22,6 +35,11 @@ func main() {
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage!")
 	fmt.Println("Endpoint Hit: homePage")
+}
+
+func searchTwoot(w http.ResponseWriter, r *http.Request){
+	var queryParam string = mux.Vars(r)["query"]
+	json.NewEncoder(w).Encode(findTwoots(queryParam))
 }
 
 func returnAll(w http.ResponseWriter, r *http.Request) {
@@ -46,9 +64,10 @@ func storeTwoot(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
+	
 
 	// insert the twoot into the database
-	DAL.InsertTwoot(twoot, w)
+	DAL.InsertTwoot(twoot)
 
 }
 
@@ -60,6 +79,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/", homePage)
 	myRouter.HandleFunc("/all", returnAll)
 	myRouter.HandleFunc("/get/{id}", returnTwoot)
+	myRouter.HandleFunc("/search/{query}", searchTwoot)
 	myRouter.HandleFunc("/create", storeTwoot)
 
 	log.Fatal(http.ListenAndServe(":9999", myRouter))
@@ -71,6 +91,15 @@ func handleRequests() {
 
 func getAllTwoots() (values []primitive.M) {
 	return DAL.ReadAllTwoots()
+}
+
+func findTwoots(query string) (twoots []primitive.M){
+	twoots, err := DAL.SearchTwootsByHashtag(query);
+	if err != nil {
+		log.Panicf("%s: %s", "could not search for twoots", err)
+		return
+	}
+	return twoots;
 }
 
 // other
