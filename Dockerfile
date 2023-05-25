@@ -10,8 +10,8 @@ RUN go mod download
 COPY *.go ./
 COPY . ./
 
-RUN go build -o /StratService
+RUN go build -o /SearchService
 
 EXPOSE 10000
 
-CMD [ "/StratService" ]
+CMD [ "/SearchService" ]
