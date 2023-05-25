@@ -119,7 +119,8 @@ func ReadSingleTwoot(id string) (value primitive.M) {
 
 // other
 func NewClient() (value mongo.Client) {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017"))
+	clientOptions := options.Client().ApplyURI("mongodb+srv://ninoverhaegh:6P77TACMZwsd8pb4@twotterdb.jfx1rk2.mongodb.net/?retryWrites=true&w=majority")
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		panic(err)
 	}

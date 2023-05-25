@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searchservice-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: searchservice
+  template:
+    metadata:
+      labels:
+        app: searchservice
+    spec:
+      containers:
+        - name: searchservice
+          image: ninoverhaegh/searchservice:latest
+          ports:
+            - containerPort: 8081
