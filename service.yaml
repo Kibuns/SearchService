@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-service
+spec:
+  selector:
+    app: searchservice
+  ports:
+    - protocol: TCP
+      port: 9999
+      targetPort: 9999
+  type: NodePort
