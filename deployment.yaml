@@ -17,3 +17,7 @@ spec:
           image: ninoverhaegh/searchservice:latest
           ports:
             - containerPort: 8081
+          resources:
+            requests:
+              cpu: 100m
+              memory: 50Mi
