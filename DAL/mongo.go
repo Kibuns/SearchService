@@ -116,6 +116,18 @@ func ReadSingleTwoot(id string) (value primitive.M) {
 //----Update----
 
 //----Delete----
+func DeleteAllOfUser(username string) {
+    userCollection := client.Database("HashtagTwootDB").Collection("twoots")
+
+    // Define the filter to match the username
+    filter := bson.M{"username": username}
+
+    // Delete all documents that match the filter
+    _, err := userCollection.DeleteMany(context.TODO(), filter)
+    if err != nil {
+        // Handle the error
+    }
+}
 
 // other
 func NewClient() (value mongo.Client) {

@@ -32,6 +32,12 @@ func main() {
 
 //controllers
 
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+	var idParam string = mux.Vars(r)["user"]
+	DAL.DeleteAllOfUser(idParam)
+	fmt.Fprintf(w, "deleted everything from user: " + idParam)
+}
+
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage of the Search Service!")
 	fmt.Println("Endpoint Hit: homePage")
@@ -81,6 +87,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/get/{id}", returnTwoot)
 	myRouter.HandleFunc("/search/{query}", searchTwoot)
 	myRouter.HandleFunc("/create", storeTwoot)
+	myRouter.HandleFunc("/delete/{user}", deleteUser)
 
 	log.Fatal(http.ListenAndServe(":8081", myRouter))
 }
