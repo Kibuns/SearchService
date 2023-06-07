@@ -7,5 +7,5 @@ spec:
     app: searchservice
   ports:
     - protocol: TCP
-      port: 9999
-      targetPort: 9999
+      port: 8081
+      targetPort: 8081
